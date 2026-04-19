@@ -1,0 +1,382 @@
+Yes — this is a **fixed-length sliding window** problem, even though it does **not** look like one at first.
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML``   # 1423. Maximum Points You Can Obtain from Cards  ## Problem  You have an array `cardPoints`.  You must take exactly `k` cards.  Each time, you can only take:  - from the **left end**, or  - from the **right end**  Return the maximum total score.  ---  # First intuition  At first glance, this feels like:  - recursion  - two choices at every step  - maybe dynamic programming  Because at every move you can choose:  - left  - right  So it is natural to think:  > “This is a decision problem, maybe DP.”  But there is a much simpler observation.  ---  # Key observation  If you take exactly `k` cards from the two ends, then the cards you **do not take** must be a **contiguous subarray in the middle**.  Why?  Because every pick removes one card from either the left edge or the right edge.  So after taking `k` cards, the only cards left are the block in the center.  That remaining block has length:  ```python  n - k   ``
+
+So instead of thinking:
+
+> Which k cards should I take from the ends?
+
+we can think:
+
+> Which contiguous block of length n-k should I leave behind?
+
+Why this becomes sliding window
+===============================
+
+Let:
+
+*   total\_sum = sum(cardPoints)
+    
+
+If we leave behind a middle subarray of length n-k, then:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   score = total_sum - sum(middle_subarray)   `
+
+To maximize the score, we want to minimize the sum of the middle subarray.
+
+So the problem becomes:
+
+> Find the minimum-sum subarray of fixed length n-k
+
+That is a classic **fixed-size sliding window** problem.
+
+How to tell this is sliding window
+==================================
+
+Ask yourself:
+
+1\. Is there a contiguous block involved?
+-----------------------------------------
+
+Yes.
+
+The cards left behind form a contiguous middle block.
+
+2\. Is the length fixed?
+------------------------
+
+Yes.
+
+That block always has length:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   n - k   `
+
+3\. Are we scanning all windows of the same size?
+-------------------------------------------------
+
+Yes.
+
+We want the minimum-sum subarray of size n-k.
+
+That is exactly fixed-length sliding window.
+
+How to tell sliding window vs dynamic programming
+=================================================
+
+Sliding window usually appears when:
+------------------------------------
+
+*   you are dealing with a **contiguous subarray / substring**
+    
+*   window size is fixed, or
+    
+*   you expand and shrink a window while maintaining a condition
+    
+*   you can update the answer incrementally when moving left/right
+    
+
+Typical clues:
+
+*   "subarray"
+    
+*   "substring"
+    
+*   "contiguous"
+    
+*   "length k"
+    
+*   "at most k distinct"
+    
+*   "minimum window"
+    
+*   "maximum sum over a window"
+    
+
+Dynamic programming usually appears when:
+-----------------------------------------
+
+*   the problem asks for the best result among many overlapping choices
+    
+*   the answer depends on smaller subproblems
+    
+*   there is no simple contiguous-window structure
+    
+*   you need states like:
+    
+    *   dp\[i\]
+        
+    *   dp\[i\]\[j\]
+        
+    *   dp\[i\]\[k\]
+        
+    *   “best using first i elements”
+        
+    *   “best ending at i”
+        
+    *   “take or skip”
+        
+
+Typical clues:
+
+*   "number of ways"
+    
+*   "minimum cost"
+    
+*   "can partition"
+    
+*   "longest subsequence"
+    
+*   "rob houses"
+    
+*   "pick with constraints across positions"
+    
+*   "future decisions depend on past state in a non-window way"
+    
+
+Why this is NOT really DP
+=========================
+
+A DP thought might be:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   take left or take right at every step   `
+
+But that creates many repeated states and is overkill.
+
+The deeper structure is simpler:
+
+*   taking k from the ends
+    
+*   means leaving n-k contiguous in the middle
+    
+
+Once you see that, the problem reduces to scanning all fixed-length middle windows.
+
+So sliding window is the best tool here.
+
+Example
+=======
+
+Input
+-----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   cardPoints = [1,2,3,4,5,6,1]  k = 3   `
+
+Here:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   n = 7   `
+
+If we take k = 3 cards, then we leave behind:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   n - k = 4   `
+
+So we need to find the minimum-sum subarray of length 4.
+
+All windows of size 4:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [1,2,3,4]  sum = 10  [2,3,4,5]  sum = 14  [3,4,5,6]  sum = 18  [4,5,6,1]  sum = 16   `
+
+Minimum is:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   10   `
+
+Total sum is:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   1+2+3+4+5+6+1 = 22   `
+
+So max score is:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   22 - 10 = 12   `
+
+That matches the answer.
+
+Solution 1: Fixed-length sliding window on the middle block
+===========================================================
+
+Code
+----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   class Solution:      def maxScore(self, cardPoints: List[int], k: int) -> int:          n = len(cardPoints)          # If we take all cards          if k == n:              return sum(cardPoints)          total_sum = sum(cardPoints)          window_len = n - k          window_sum = sum(cardPoints[:window_len])          min_window_sum = window_sum          for right in range(window_len, n):              window_sum += cardPoints[right] - cardPoints[right - window_len]              min_window_sum = min(min_window_sum, window_sum)          return total_sum - min_window_sum   `
+
+How this works
+==============
+
+Step 1
+------
+
+Compute total sum:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   total_sum = sum(cardPoints)   `
+
+Step 2
+------
+
+Find the size of the middle block left behind:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window_len = n - k   `
+
+Step 3
+------
+
+Find the minimum-sum subarray of that size using fixed sliding window
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window_sum += cardPoints[right] - cardPoints[right - window_len]   `
+
+Step 4
+------
+
+Subtract it from total sum
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   return total_sum - min_window_sum   `
+
+Dry run
+=======
+
+Input
+-----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   cardPoints = [1,2,3,4,5,6,1]  k = 3   `
+
+Values
+------
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   n = 7  window_len = 7 - 3 = 4  total_sum = 22   `
+
+First window
+------------
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   [1,2,3,4]  window_sum = 10  min_window_sum = 10   `
+
+Slide right
+-----------
+
+### Window \[2,3,4,5\]
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window_sum = 10 + 5 - 1 = 14  min_window_sum = min(10, 14) = 10   `
+
+### Window \[3,4,5,6\]
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window_sum = 14 + 6 - 2 = 18  min_window_sum = 10   `
+
+### Window \[4,5,6,1\]
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   window_sum = 18 + 1 - 3 = 16  min_window_sum = 10   `
+
+Final
+-----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   answer = 22 - 10 = 12   `
+
+Why this is fixed-length sliding window
+=======================================
+
+Because we are scanning every contiguous subarray of exactly this size:
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   n - k   `
+
+That size never changes.
+
+So this is **fixed-size**, not variable-size.
+
+Another valid way to think about it
+===================================
+
+There is also a second common solution:
+
+*   Start with taking the first k cards from the left
+    
+*   Then gradually swap one left card out and one right card in
+    
+*   Track the maximum total
+    
+
+Code
+----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   class Solution:      def maxScore(self, cardPoints: List[int], k: int) -> int:          current = sum(cardPoints[:k])          best = current          right = len(cardPoints) - 1          for left in range(k - 1, -1, -1):              current -= cardPoints[left]              current += cardPoints[right]              best = max(best, current)              right -= 1          return best   `
+
+Why this also works
+===================
+
+If you take exactly k cards, your choices are really:
+
+*   take k from left, 0 from right
+    
+*   take k-1 from left, 1 from right
+    
+*   take k-2 from left, 2 from right
+    
+*   ...
+    
+*   take 0 from left, k from right
+    
+
+This code checks all those combinations efficiently.
+
+This is not the “middle-window” view, but it is the same idea underneath.
+
+Which version should you remember?
+==================================
+
+The **middle block / minimum window** version is better for pattern recognition because it teaches the core insight:
+
+> taking from ends = leaving a contiguous block in the middle
+
+That helps you recognize future problems.
+
+Complexity
+==========
+
+Time
+----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   O(n)   `
+
+Space
+-----
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   O(1)   `
+
+Final intuition
+===============
+
+This problem looks like a left/right choice problem, so DP seems possible.
+
+But because taking from the ends always leaves one contiguous middle block, the problem collapses into:
+
+> find the minimum-sum contiguous subarray of fixed size n-k
+
+That is why this is a **fixed-length sliding window** problem.
+
+Quick rule to distinguish DP vs sliding window
+==============================================
+
+Think sliding window when:
+--------------------------
+
+*   contiguous subarray/substring
+    
+*   fixed length or expandable window
+    
+*   move left/right pointers
+    
+*   update answer incrementally
+    
+
+Think DP when:
+--------------
+
+*   answer depends on smaller overlapping subproblems
+    
+*   choices branch in a way that cannot be represented as one moving window
+    
+*   state must track position + extra info
+    
+
+One-line takeaway
+=================
+
+This is sliding window because:
+
+> taking k cards from the ends is equivalent to leaving one contiguous subarray of length n-k in the middle.
+
+Plain textANTLR4BashCC#CSSCoffeeScriptCMakeDartDjangoDockerEJSErlangGitGoGraphQLGroovyHTMLJavaJavaScriptJSONJSXKotlinLaTeXLessLuaMakefileMarkdownMATLABMarkupObjective-CPerlPHPPowerShell.propertiesProtocol BuffersPythonRRubySass (Sass)Sass (Scss)SchemeSQLShellSwiftSVGTSXTypeScriptWebAssemblyYAMLXML`   A very fast test in interviews:  - If you see **contiguous + fixed size**, first try **sliding window**  - If you see **take/skip/choose among subproblems**, first try **DP**  For this problem, the word “ends” is a trap. The hidden structure is still a fixed contiguous window in the middle.   `
