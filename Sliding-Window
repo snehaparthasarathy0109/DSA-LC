@@ -72,5 +72,47 @@ These make you recognize that the window may be on the complement, not the direc
 
 ## What to recognize in any sliding-window problem
 
-Almost every sliding-window problem reduces*
-
+Almost every sliding-window problem reduces to one of these prompts:
+
+* **Fixed-size:** "find best/count over every subarray of length k"
+* **Longest valid window:** "maximize length while condition stays true"
+* **Shortest valid window:** "minimize length once condition becomes true"
+* **At most K:** count/length with a bounded property
+* **Exactly K:** usually compute `atMost(K) - atMost(K-1)`
+* **Window + deque:** need max/min in O(1) while moving
+* **Window + prefix/deque hybrid:** when negatives break normal shrinking logic
+
+## Best study order
+
+Do them in this order:
+
+1. 643
+2. 209
+3. 3
+4. 713
+5. 904
+6. 424
+7. 567
+8. 438
+9. 76
+10. 1004
+11. 340
+12. 992
+13. 1248
+14. 239
+15. 1438
+16. 1658
+17. 1838
+18. 862
+19. 480
+20. 2762
+
+If you can solve those cleanly, you'll recognize most sliding-window interviews immediately.
+
+## The real goal
+
+You do **not** need all 240. You need to deeply internalize about **20–30 representative problems**. That's also how the strongest community LeetCode sliding-window lists are structured: a smaller grouped set of high-value problems rather than brute-forcing the entire tag. ([LeetCode](https://leetcode.com/discuss/post/3630462/top-20-sliding-window-problems-for-begin-zgm5/?utm_source=chatgpt.com))
+
+Use the official LeetCode sliding-window page as your full backlog, since it is the current authoritative source for the full tag/list. ([LeetCode](https://leetcode.com/problem-list/sliding-window/))
+
+I can turn this into a **30-day sliding-window curriculum** with problem order, pattern notes, and what each problem teaches.
