@@ -1,0 +1,695 @@
+````md id="y2m8fk"
+# 438. Find All Anagrams in a String
+
+## Problem
+Given two strings `s` and `p`, return an array of all the start indices of `p`'s anagrams in `s`.
+
+An anagram has:
+
+- the same characters
+- the same frequency of each character
+- possibly in a different order
+
+A substring must be contiguous.
+
+---
+
+## Example 1
+
+```python
+s = "cbaebabacd"
+p = "abc"
+````
+
+Output:
+
+```python id="j7ezs0"
+[0, 6]
+```
+
+Explanation:
+
+* substring starting at `0` is `"cba"` → anagram of `"abc"`
+* substring starting at `6` is `"bac"` → anagram of `"abc"`
+
+---
+
+## Example 2
+
+```python id="jlwm5e"
+s = "abab"
+p = "ab"
+```
+
+Output:
+
+```python id="mw2asj"
+[0, 1, 2]
+```
+
+Explanation:
+
+* `"ab"` at index `0`
+* `"ba"` at index `1`
+* `"ab"` at index `2`
+
+are all anagrams of `"ab"`.
+
+---
+
+# Key Idea
+
+An anagram of `p` must satisfy two things:
+
+1. it must have the same length as `p`
+2. it must have the same character counts as `p`
+
+So instead of checking every substring from scratch, we use a **fixed-size sliding window** of size:
+
+```python id="cz5atd"
+m = len(p)
+```
+
+We slide that window across `s` and compare:
+
+* the frequency count of `p`
+* the frequency count of the current window in `s`
+
+If they match, the current window is an anagram.
+
+---
+
+# Why This Is Sliding Window
+
+We only care about substrings of one fixed size:
+
+```python id="fc9g7b"
+len(p)
+```
+
+When the window moves one step to the right:
+
+* one character enters the window
+* one character leaves the window
+
+So instead of rebuilding the whole frequency count every time, we update it in `O(1)`.
+
+---
+
+# Solution
+
+```python id="jlwm6b"
+class Solution:
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        if len(p) > len(s):
+            return []
+
+        res = []
+        p_count = [0] * 26
+        window = [0] * 26
+        m = len(p)
+
+        for ch in p:
+            p_count[ord(ch) - ord('a')] += 1
+
+        for i in range(len(s)):
+            window[ord(s[i]) - ord('a')] += 1
+
+            if i >= m:
+                window[ord(s[i - m]) - ord('a')] -= 1
+
+            if window == p_count:
+                res.append(i - m + 1)
+
+        return res
+```
+
+---
+
+# Step-by-Step Explanation
+
+## 1. Edge case
+
+If `p` is longer than `s`, then no substring of `s` can possibly match.
+
+```python id="k79kez"
+if len(p) > len(s):
+    return []
+```
+
+---
+
+## 2. Build the frequency count for `p`
+
+We use an array of size 26 because the strings contain lowercase English letters.
+
+```python id="d8lu9w"
+p_count = [0] * 26
+```
+
+If:
+
+```python id="jazjz5"
+p = "abc"
+```
+
+then after this loop:
+
+```python id="u9wv48"
+for ch in p:
+    p_count[ord(ch) - ord('a')] += 1
+```
+
+we get:
+
+```python id="41rdd0"
+p_count = [1 for a, 1 for b, 1 for c, 0 for everything else]
+```
+
+More concretely:
+
+* `p_count[0] = 1` for `'a'`
+* `p_count[1] = 1` for `'b'`
+* `p_count[2] = 1` for `'c'`
+
+---
+
+## 3. Maintain a sliding window count for `s`
+
+We also keep a frequency array for the current window in `s`:
+
+```python id="py0b6v"
+window = [0] * 26
+```
+
+As we move through `s`, we add the current character:
+
+```python id="b6b5od"
+window[ord(s[i]) - ord('a')] += 1
+```
+
+---
+
+## 4. Keep the window size exactly `m`
+
+Let:
+
+```python id="xlemiy"
+m = len(p)
+```
+
+If the window gets too big, remove the character that just fell off the left side:
+
+```python id="swoyrm"
+if i >= m:
+    window[ord(s[i - m]) - ord('a')] -= 1
+```
+
+This works because:
+
+* `i` is the current right end
+* the window size should be `m`
+* so the old character leaving the window is at index:
+
+```python id="44cob7"
+i - m
+```
+
+---
+
+## 5. Compare the current window to `p`
+
+If both frequency arrays match:
+
+```python id="4kct5h"
+if window == p_count:
+```
+
+then the current window is an anagram.
+
+Its start index is:
+
+```python id="57uwxv"
+i - m + 1
+```
+
+So we append:
+
+```python id="esyvtl"
+res.append(i - m + 1)
+```
+
+---
+
+# Why Is the Start Index `i - m + 1`?
+
+Suppose:
+
+* the window length is `m`
+* the window ends at index `i`
+
+Then the start index is:
+
+```python id="mxx2uy"
+start = end - length + 1
+```
+
+So:
+
+```python id="8cuzme"
+start = i - m + 1
+```
+
+### Example
+
+If:
+
+* `i = 6`
+* `m = 3`
+
+then:
+
+```python id="ay9e8n"
+start = 6 - 3 + 1 = 4
+```
+
+So a window of length 3 ending at index 6 starts at index 4.
+
+That window covers:
+
+* 4
+* 5
+* 6
+
+which is exactly 3 characters.
+
+---
+
+# Why Do We Remove `s[i - m]`?
+
+Because when the window slides right by one step:
+
+* one new character enters on the right
+* one old character leaves on the left
+
+If the window size is `m`, then when we are at index `i`, the character leaving is the one at:
+
+```python id="ub0a66"
+i - m
+```
+
+### Example
+
+If `m = 3`:
+
+* at `i = 2`, the window is indices `0..2`
+* at `i = 3`, after adding `s[3]`, the window would temporarily be size 4
+* so we remove the old leftmost character at index:
+
+```python id="pb2z0v"
+3 - 3 = 0
+```
+
+That restores the window size to 3.
+
+---
+
+# Dry Run
+
+## Example 1
+
+```python id="qpcds2"
+s = "cbaebabacd"
+p = "abc"
+```
+
+So:
+
+```python id="apbbli"
+m = len(p) = 3
+```
+
+We want to check every substring of length 3.
+
+---
+
+## Build `p_count`
+
+For `"abc"`:
+
+* `'a'` → count 1
+* `'b'` → count 1
+* `'c'` → count 1
+
+So `p_count` represents:
+
+```python id="b39588"
+{'a': 1, 'b': 1, 'c': 1}
+```
+
+---
+
+## `i = 0`
+
+Character added:
+
+```python id="w2r6dm"
+s[0] = 'c'
+```
+
+Window is now `"c"`.
+
+Not full size yet, so we do not compare.
+
+---
+
+## `i = 1`
+
+Character added:
+
+```python id="bmivpg"
+s[1] = 'b'
+```
+
+Window is now `"cb"`.
+
+Still not full size yet.
+
+---
+
+## `i = 2`
+
+Character added:
+
+```python id="te12rz"
+s[2] = 'a'
+```
+
+Window is now `"cba"`.
+
+This is the first full window of size 3.
+
+Frequency of `"cba"` matches frequency of `"abc"`.
+
+So append start index:
+
+```python id="ac4iiq"
+2 - 3 + 1 = 0
+```
+
+Result:
+
+```python id="jlwm2q"
+[0]
+```
+
+---
+
+## `i = 3`
+
+Character added:
+
+```python id="hj5zxy"
+s[3] = 'e'
+```
+
+Now the window is temporarily `"cbae"` which is too big.
+
+Remove the old character at index:
+
+```python id="wjvube"
+3 - 3 = 0
+```
+
+That is `'c'`.
+
+Now the real window becomes `"bae"`.
+
+Its frequency does not match `"abc"`.
+
+---
+
+## `i = 4`
+
+Add `'b'`, remove `s[1] = 'b'`
+
+Window becomes `"aeb"`.
+
+Not a match.
+
+---
+
+## `i = 5`
+
+Add `'a'`, remove `s[2] = 'a'`
+
+Window becomes `"eba"`.
+
+Not a match.
+
+---
+
+## `i = 6`
+
+Add `'b'`, remove `s[3] = 'e'`
+
+Window becomes `"bab"`.
+
+Not a match.
+
+---
+
+## `i = 7`
+
+Add `'a'`, remove `s[4] = 'b'`
+
+Window becomes `"aba"`.
+
+Not a match.
+
+---
+
+## `i = 8`
+
+Add `'c'`, remove `s[5] = 'a'`
+
+Window becomes `"bac"`.
+
+Frequency matches `"abc"`.
+
+Append start index:
+
+```python id="ds74cm"
+8 - 3 + 1 = 6
+```
+
+Result:
+
+```python id="rzj9e5"
+[0, 6]
+```
+
+---
+
+## `i = 9`
+
+Add `'d'`, remove `s[6] = 'b'`
+
+Window becomes `"acd"`.
+
+Not a match.
+
+Final result:
+
+```python id="rzag0h"
+[0, 6]
+```
+
+---
+
+# Example 2
+
+```python id="p0edc7"
+s = "abab"
+p = "ab"
+```
+
+Here:
+
+```python id="6d8jjr"
+m = 2
+```
+
+We check all windows of length 2.
+
+---
+
+## `i = 0`
+
+Window = `"a"`
+Too small.
+
+## `i = 1`
+
+Window = `"ab"`
+Match → append:
+
+```python id="rb34lx"
+1 - 2 + 1 = 0
+```
+
+## `i = 2`
+
+Add `'a'`, remove `s[0] = 'a'`
+Window becomes `"ba"`
+Match → append:
+
+```python id="e1m1ux"
+2 - 2 + 1 = 1
+```
+
+## `i = 3`
+
+Add `'b'`, remove `s[1] = 'b'`
+Window becomes `"ab"`
+Match → append:
+
+```python id="c45nf5"
+3 - 2 + 1 = 2
+```
+
+Final answer:
+
+```python id="v9n6pl"
+[0, 1, 2]
+```
+
+---
+
+# Intuition in One Sentence
+
+Slide a window of size `len(p)` across `s`, keep letter counts for the current window, and whenever the counts match `p`, record the starting index.
+
+---
+
+# Time Complexity
+
+Let:
+
+* `n = len(s)`
+* alphabet size = 26
+
+For each character in `s`, we:
+
+* add one character
+* maybe remove one character
+* compare two arrays of size 26
+
+Since 26 is constant, the total time is:
+
+```python id="jlwm06"
+O(n)
+```
+
+---
+
+# Space Complexity
+
+We use two arrays of size 26:
+
+```python id="jlwm07"
+O(1)
+```
+
+because the alphabet size is fixed.
+
+---
+
+# Pattern to Remember
+
+This is a standard **fixed-size sliding window** pattern:
+
+1. build target frequency count
+2. build/update current window frequency count
+3. keep window size fixed
+4. compare counts
+5. record answer
+
+Template:
+
+```python id="jlwm08"
+for i in range(len(s)):
+    add s[i]
+
+    if i >= window_size:
+        remove s[i - window_size]
+
+    if current_window_matches_target:
+        append start index
+```
+
+---
+
+# Common Mistakes
+
+## 1. Not handling `len(p) > len(s)`
+
+Then you may try to form a window that cannot exist.
+
+## 2. Forgetting to remove the old left character
+
+Then the window count keeps growing and no longer represents a fixed-size window.
+
+## 3. Getting confused by `i - m + 1`
+
+Remember:
+
+* `i` = end index
+* `m` = window size
+* start = `i - m + 1`
+
+## 4. Comparing sorted substrings
+
+That works but is slower.
+
+---
+
+# Short Interview Explanation
+
+This is a fixed-size sliding window problem.
+An anagram of `p` must have the same length and the same character frequencies as `p`.
+So I slide a window of size `len(p)` across `s`, maintain a frequency array for the current window, and compare it with the frequency array for `p`.
+Whenever they match, I append the starting index of that window.
+
+---
+
+# Final Code Again
+
+```python id="jlwm09"
+class Solution:
+    def findAnagrams(self, s: str, p: str) -> List[int]:
+        if len(p) > len(s):
+            return []
+
+        res = []
+        p_count = [0] * 26
+        window = [0] * 26
+        m = len(p)
+
+        for ch in p:
+            p_count[ord(ch) - ord('a')] += 1
+
+        for i in range(len(s)):
+            window[ord(s[i]) - ord('a')] += 1
+
+            if i >= m:
+                window[ord(s[i - m]) - ord('a')] -= 1
+
+            if window == p_count:
+                res.append(i - m + 1)
+
+        return res
+```
+
+```
+```
