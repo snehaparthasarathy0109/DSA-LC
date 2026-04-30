@@ -1,0 +1,152 @@
+## LeetCode 392: Is Subsequence
+
+We need to check whether all characters in `s` appear in `t` **in the same order**.
+
+They do **not** need to be next to each other.
+
+Example:
+
+```python
+s = "abc"
+t = "ahbgdc"
+```
+
+`a`, then `b`, then `c` appear in order inside `t`, so return `True`.
+
+---
+
+## Code
+
+```python
+class Solution:
+    def isSubsequence(self, s: str, t: str) -> bool:
+        i = 0  # pointer for s
+        j = 0  # pointer for t
+
+        while i < len(s) and j < len(t):
+            if s[i] == t[j]:
+                i += 1
+
+            j += 1
+
+        return i == len(s)
+```
+
+---
+
+## Explanation
+
+Use two pointers:
+
+```python
+i = 0  # points to current character in s
+j = 0  # points to current character in t
+```
+
+Move through `t` one character at a time.
+
+Whenever `t[j]` matches the current character in `s`, move `i`.
+
+```python
+if s[i] == t[j]:
+    i += 1
+```
+
+Always move `j`, because we are scanning through `t`.
+
+```python
+j += 1
+```
+
+At the end, if we matched every character in `s`, then `s` is a subsequence of `t`.
+
+```python
+return i == len(s)
+```
+
+---
+
+## Walkthrough
+
+```python
+s = "abc"
+t = "ahbgdc"
+```
+
+Start:
+
+```python
+i = 0  # s[i] = 'a'
+j = 0  # t[j] = 'a'
+```
+
+They match, so move `i`.
+
+```python
+i = 1  # now looking for 'b'
+```
+
+Keep scanning `t`.
+
+Eventually:
+
+```python
+t[j] = 'b'
+s[i] = 'b'
+```
+
+They match, so move `i`.
+
+```python
+i = 2  # now looking for 'c'
+```
+
+Keep scanning.
+
+Eventually:
+
+```python
+t[j] = 'c'
+s[i] = 'c'
+```
+
+They match, so move `i`.
+
+```python
+i = 3
+```
+
+Now:
+
+```python
+i == len(s)
+```
+
+So return:
+
+```python
+True
+```
+
+---
+
+## Why this works
+
+A subsequence only cares about **relative order**.
+
+So for every character in `s`, we try to find it in `t` from left to right.
+
+If we find all characters in order, return `True`.
+
+Otherwise, return `False`.
+
+---
+
+## Complexity
+
+```python
+Time: O(len(t))
+Space: O(1)
+```
+
+We scan through `t` once.
